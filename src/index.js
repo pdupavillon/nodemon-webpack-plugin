@@ -28,7 +28,8 @@ const nodemonLog = ( filename ) => ( msg, colour ) => () => console.log(
 
 module.exports = class {
 
-    constructor() {
+    constructor( config ) {
+        this.config = config
         this.isWebpackWatching = false
         this.isNodemonRunning = false
     }
@@ -49,14 +50,15 @@ module.exports = class {
     }
 
     startMonitoring( filename, displayname ) {
-        const nodemonOptions = {
-            script: filename,
-            watch: filename,
+        let args = ''
+        const log = nodemonLog( displayname )
+        if ( this.config ) {
+            Object.keys( this.config ).forEach( ( k ) => {
+                args += k + ' ' + this.config[ k ] + ' '
+            })
         }
 
-        const log = nodemonLog( displayname )
-
-        const monitor = nodemon( nodemonOptions )
+        const monitor = nodemon( args + filename )
 
         monitor
             .on( 'start', log( 'Started:', 'green' ) )
